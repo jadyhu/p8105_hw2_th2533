@@ -91,24 +91,7 @@ transit_df =
   select(line, station_name, station_latitude, station_longitude, route1:route11, entry,
          vending, entrance_type, ada) %>% 
   mutate(
-    entry = ifelse(entry =="YES", "Entry", "No_entry")
-  )
-
-
-```
-
-This dataset contains information related to each entry and exit for each subway station in NYC. It has information on subway line, station name, station latitude/longitude, routes served, entry, vending, entrance type, and ADA compliance.There are total `r nrow(transit_df)` rows and `r ncol(transit_df)` in our final dataset. The entry variable has been converted from a character to a logical variable. This data is not tidy because we have many columns for route information.
-
-* There are `r transit_df %>% distinct(station_name, line) %>% count()` distinct stations in NYC.
-* Among those, there are `r transit_df %>% filter(ada == "TRUE") %>% distinct(station_name, line) %>% count()`.
-* There are `r transit_df %>% filter(vending == "YES") %>% distinct(station_name, line,entry) %>% count(entry)
-
-
-```{r}
-
-transit_new = 
-  transit_df %>% 
-  mutate(
+    entry = ifelse(entry =="YES", 1, 0),
     route8 = as.character(route8),
     route9 = as.character(route9),
     route10 = as.character(route10),
@@ -118,10 +101,19 @@ transit_new =
     route1:route11,
     names_to = "route_name", 
     values_to = "route_num") %>% 
-  drop_na(route_num)
+  drop_na(route_num) %>% 
+  select(-route_name)
+
+
 ```
 
-There are `r transit_new %>% filter(route_num == "A") %>% distinct(station_name, line) %>% count()` stations serve the A train. Among those, `r transit_new %>% filter(route_num == "A") %>% distinct(station_name, line, ada) %>% filter(ada == "TRUE") %>% count()` are ADA compliant.
+This dataset contains information related to each entry and exit for each subway station in NYC. It has information on subway line, station name, station latitude/longitude, routes served, entry, vending, entrance type, and ADA compliance.There are total `r nrow(transit_df)` rows and `r ncol(transit_df)` in our final dataset. The entry variable has been converted from a character to a logical variable. This data is not tidy at first because we have many columns for route information. Now it is tidy.
+
+* There are `r transit_df %>% distinct(station_name, line) %>% count()` distinct stations in NYC.
+* Among those, there are `r transit_df %>% filter(ada == "TRUE") %>% distinct(station_name, line) %>% count()`.
+* There are `r round(transit_df %>% filter(vending == "NO") %>% distinct(station_name, line, entry) %>% filter(entry == 1) %>% count()/transit_df %>% filter(vending == "NO") %>% distinct(station_name, line, entry) %>% count(),2)` of station entrances / exits without vending allow entrance
+
+* There are `r transit_df %>% filter(route_num == "A") %>% distinct(station_name, line) %>% count()` stations serve the A train. Among those, `r transit_df %>% filter(route_num == "A") %>% distinct(station_name, line, ada) %>% filter(ada == "TRUE") %>% count()` are ADA compliant.
 
 
 
