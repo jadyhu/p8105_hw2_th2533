@@ -166,6 +166,7 @@ snp_df =
 Read the unemployment dataset.
 
 ```{r}
+## Tidy the dataset
 unemp_df = 
   read_csv(
   "./data/fivethirtyeight_datasets/unemployment.csv") %>% 
@@ -192,20 +193,24 @@ Merge the three datasets.
 
 ```{r}
 
-final_df = full_join(pols_df, snp_df, by = c("year","month"))
-final_df = full_join(final_df, unemp_df, by = c("year","month"))
+final_df = left_join(pols_df, snp_df, by = c("year","month"))
+final_df = left_join(final_df, unemp_df, by = c("year","month"))
 
 ```
 
-The pols_df dataset contains the number of national politicians who are democratic or republican at any given time. It has the information on whether the president is a democratic or republican and the number of governors, senator and representatives are democratic or republican.
+Here I have three different data sets:
 
-The snp_df dataset contains Standard & Poor’s stock market index at a given time.
+1. The pols_df dataset contains the number of national politicians who are democratic or republican at any given time. It has the information on whether the president is a democratic or republican and the number of governors, senator and representatives are democratic or republican.
 
-The unemp_df dataset contains the unemployment rate at a given time.
+2. The snp_df dataset contains Standard & Poor’s stock market index at a given time.
 
-The resulting dataset which combines the three has `r nrow(final_df)` rows and `r ncol(final_df)` columns. 
+3. The unemp_df dataset contains the unemployment rate at a given time.
+
+I change all three datasets so they have the same year and month column. I also tidy the unemployment dataset. 
+
+After we merge them, the resulting dataset which combines the three has `r nrow(final_df)` rows and `r ncol(final_df)` columns. 
 
 * It contains information from `r min(final_df %>% pull(year))` and `r max(final_df %>% pull(year))`. 
-* It also contains information on whether the president is a democratic or republican. 
-* It tells us the S&P index at a time. The mean for the index is `r mean(final_df %>% drop_na() %>% pull(close))`. 
-* It also gives us the unemployment rate at a time. The mean is `r mean(final_df %>% drop_na() %>% pull(unemp_rate))`. 
+* It also contains information on whether the president is a democratic or republican. It is a variable president.
+* Variable Close tells us the S&P index at a time. The mean for the index is `r round(mean(final_df %>% drop_na() %>% pull(close)),2)`. 
+* It also gives us the unemployment rate at a time. The mean is `r round(mean(final_df %>% drop_na() %>% pull(unemp_rate)),2)`. 
